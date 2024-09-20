@@ -20,13 +20,13 @@ The repository includes the following example applications:
 The input data used in the examples is:
 
 ```plaintext
-David
-22
-190.5
-D
-This is a comment
-90
-+52 33 3947 2308
+Hector
+23
+171.32
+H
+I am a guy
+80
++52 33 0000 1111
 ```
 
 ### Programs to Execute

@@ -14,7 +14,7 @@ func main() {
 	// extension := "py"
 
 	// Inputs simulating what you would pass in PHP
-	inputs := []string{"David", "22", "190.5", "D", "This is a comment", "90", "+52 33 3947 2308"}
+	inputs := []string{"Hector", "23", "171.32", "H", "I am a guy", "80", "+52 33 0000 1111"}
 
 	// Convert the inputs into a string that simulates standard input
 	inputString := strings.Join(inputs, "\n")

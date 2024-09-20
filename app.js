@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 // Array of inputs
-const inputs = ["David", 22, 190.5, "D", "This is a comment", 90, "+52 33 3947 2308"];
+const inputs = ["Hector", 23, 171.32, "H", "I am a guy", 80, "+52 33 0000 1111"];
 
 // Programming language extension
 const extension = 'cpp';
