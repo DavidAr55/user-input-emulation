@@ -14,45 +14,32 @@ Here’s an example of how `app.php` works, simulating user input for a Python p
 
 ```php
 <?php
-// Array of inputs
 $inputs = ["Hector", 23, 171.32, "H", "I am a guy", 80, "+52 33 0000 1111"];
+$extension = "py";
 
-// Programming language extension
-$extension = "py"; // Change to "cpp" for C++
-
-// Convert inputs to a string that simulates standard input (stdin)
 $input_string = implode("\n", $inputs);
-
-// Command to execute the program
 $command = __DIR__ . "/src/$extension/program";
 
-// Descriptor specifications to handle stdin, stdout, and stderr
 $descriptorspec = array(
     0 => array("pipe", "r"),  // stdin
     1 => array("pipe", "w"),  // stdout
     2 => array("pipe", "w")   // stderr
 );
 
-// Open the process
 $process = proc_open($command, $descriptorspec, $pipes);
 
 if (is_resource($process)) {
-    // Write the inputs to the process's stdin
     fwrite($pipes[0], $input_string);
-    fclose($pipes[0]); // Close the input after writing
+    fclose($pipes[0]);
 
-    // Read the output from the process
     $output = stream_get_contents($pipes[1]);
     fclose($pipes[1]);
 
-    // Read any errors from the process (if any)
     $error = stream_get_contents($pipes[2]);
     fclose($pipes[2]);
 
-    // Close the process
     $return_value = proc_close($process);
 
-    // Display the output and any errors (if any)
     echo $output;
     if (!empty($error)) {
         echo "Error: " . $error;
@@ -99,6 +86,20 @@ if __name__ == "__main__":
     print(f"Comment: {comment}")
     print(f"Weight: {weight} kg")
     print(f"Phone: {phone}")
+```
+
+### Output expected
+
+```plaintext
+Enter your full name: Enter your age: Enter your height (in meters): Enter the initial of your name: Enter a comment: Enter your weight (in kg): Enter your phone number: 
+--- Person's Data (Python) ---
+Name: Hector
+Age: 23
+Height: 171.32 meters
+Initial of the name: H
+Comment: I am a guy
+Weight: 80.0 kg
+Phone: +52 33 0000 1111
 ```
 
 ## Included Examples
