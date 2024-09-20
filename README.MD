@@ -1,19 +1,65 @@
 # User Input Emulation
 
-This repository contains scripts for emulating user input in C++ and Python programs. The scripts allow you to run programs on a server while simulating standard input, making it easier to test or execute code without manual input.
+This repository contains scripts for emulating user input in C++ and Python programs. The scripts allow you to run programs on a server while simulating standard input, making it easier to test and execute code without manual input.
 
-## Overview
+## Purpose of the Project
 
-The primary purpose of this project is to demonstrate how to execute C++ and Python programs with predefined inputs. It includes example applications that simulate user interaction by providing inputs programmatically.
+The main goal of this project is to enable the execution of C++ and Python programs that require user input, without the need for manual entry. This is particularly useful for testing and development environments where automation is key. Currently, I am developing an application to compile code in real time on my server, and this input emulation approach has been crucial for its success.
 
-## Examples
+## Example Usage
 
-The repository includes the following example applications:
+### app.php
 
-1. **app.go** - A Go application that runs a C++ or Python program with simulated user inputs.
-2. **app.js** - A Node.js application for executing the program with simulated inputs.
-3. **app.php** - A PHP script that performs the same task.
-4. **app.py** - A Python script for executing the C++ or Python program with predefined inputs.
+Here’s an example of how `app.php` works, simulating user input for a Python program:
+
+```php
+<?php
+// Array of inputs
+$inputs = ["Hector", 23, 171.32, "H", "I am a guy", 80, "+52 33 0000 1111"];
+
+// Programming language extension
+$extension = "py"; // Change to "cpp" for C++
+
+// Convert inputs to a string that simulates standard input (stdin)
+$input_string = implode("\n", $inputs);
+
+// Command to execute the program
+$command = __DIR__ . "/src/$extension/program";
+
+// Descriptor specifications to handle stdin, stdout, and stderr
+$descriptorspec = array(
+    0 => array("pipe", "r"),  // stdin
+    1 => array("pipe", "w"),  // stdout
+    2 => array("pipe", "w")   // stderr
+);
+
+// Open the process
+$process = proc_open($command, $descriptorspec, $pipes);
+
+if (is_resource($process)) {
+    // Write the inputs to the process's stdin
+    fwrite($pipes[0], $input_string);
+    fclose($pipes[0]); // Close the input after writing
+
+    // Read the output from the process
+    $output = stream_get_contents($pipes[1]);
+    fclose($pipes[1]);
+
+    // Read any errors from the process (if any)
+    $error = stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+
+    // Close the process
+    $return_value = proc_close($process);
+
+    // Display the output and any errors (if any)
+    echo $output;
+    if (!empty($error)) {
+        echo "Error: " . $error;
+    }
+}
+?>
+```
 
 ### Input Simulation
 
@@ -29,33 +75,40 @@ I am a guy
 +52 33 0000 1111
 ```
 
-### Programs to Execute
+### Example Python Program
 
-The following programs can be executed with the above inputs:
-
-#### `program.cpp`
-
-A simple C++ program that captures user data, including name, age, height, initial, comment, weight, and phone number.
-
-```cpp
-#include <iostream>
-#include <string>
-#include <limits>
-
-int main() {
-    // ... (code omitted for brevity)
-    return 0;
-}
-```
-
-#### `program.py`
-
-A Python program that captures the same set of user data as the C++ program.
+The `program.py` captures the same inputs:
 
 ```python
 if __name__ == "__main__":
-    # ... (code omitted for brevity)
+    # Person's attributes
+    name = input("Enter your full name: ")
+    age = int(input("Enter your age: "))
+    height = float(input("Enter your height (in meters): "))
+    initial = input("Enter the initial of your name: ")[0]
+    comment = input("Enter a comment: ")
+    weight = float(input("Enter your weight (in kg): "))
+    phone = input("Enter your phone number: ")
+
+    # Display the captured data
+    print("\n--- Person's Data (Python) ---")
+    print(f"Name: {name}")
+    print(f"Age: {age}")
+    print(f"Height: {height} meters")
+    print(f"Initial of the name: {initial}")
+    print(f"Comment: {comment}")
+    print(f"Weight: {weight} kg")
+    print(f"Phone: {phone}")
 ```
+
+## Included Examples
+
+This repository includes examples in different languages:
+
+1. **app.go** - A Go application that runs a C++ or Python program with simulated user inputs.
+2. **app.js** - A Node.js application for executing the program with simulated inputs.
+3. **app.php** - A PHP script that performs the same task.
+4. **app.py** - A Python script for executing the C++ or Python program with predefined inputs.
 
 ## Usage
 
@@ -68,7 +121,7 @@ To run the examples, follow these steps:
    ```
 
 2. **Build the C++ Program**
-   If you are using the C++ program, compile it using:
+   For example, if you are using the C++ program, compile it using:
    ```bash
    g++ -o src/cpp/program src/cpp/program.cpp
    ```
@@ -95,10 +148,6 @@ To run the examples, follow these steps:
      ```bash
      python app.py
      ```
-
-## Output
-
-Each application will execute the specified program, providing the predefined inputs, and display the output or any errors that occur during execution.
 
 ## Conclusion
 
