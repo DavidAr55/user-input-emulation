@@ -15,10 +15,10 @@ Here’s an example of how `app.php` works, simulating user input for a Python p
 ```php
 <?php
 $inputs = ["Hector", 23, 171.32, "H", "I am a guy", 80, "+52 33 0000 1111"];
-$extension = "py";
+$extension = "cpp";
 
 $input_string = implode("\n", $inputs);
-$command = __DIR__ . "/src/$extension/program";
+$command = __DIR__ . "/src/$extension/run_time_error_test";
 
 $descriptorspec = array(
     0 => array("pipe", "r"),  // stdin
@@ -27,18 +27,38 @@ $descriptorspec = array(
 );
 
 $process = proc_open($command, $descriptorspec, $pipes);
+$timeout = 5;
 
 if (is_resource($process)) {
     fwrite($pipes[0], $input_string);
     fclose($pipes[0]);
 
-    $output = stream_get_contents($pipes[1]);
-    fclose($pipes[1]);
+    $start = time();
+    $output = '';
+    $error = '';
 
-    $error = stream_get_contents($pipes[2]);
-    fclose($pipes[2]);
+    do {
+        $status = proc_get_status($process);
+        if (!$status['running']) {
+            $output = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
 
-    $return_value = proc_close($process);
+            $error = stream_get_contents($pipes[2]);
+            fclose($pipes[2]);
+            break;
+        }
+
+        if ((time() - $start) > $timeout) {
+            proc_terminate($process);
+            $output = "Error: Execution time exceeded the allowed limit of $timeout seconds.";
+            break;
+        }
+
+        usleep(100000);
+
+    } while (true);
+
+    proc_close($process);
 
     echo $output;
     if (!empty($error)) {
