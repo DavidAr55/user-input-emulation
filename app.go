@@ -6,6 +6,7 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -19,13 +20,13 @@ func main() {
 	// Convert the inputs into a string that simulates standard input
 	inputString := strings.Join(inputs, "\n")
 
-	// Create the command to execute the compiled C++ program (main.exe)
+	// Create the command to execute the compiled C++ program
 	cmd := exec.Command(fmt.Sprintf("./src/%s/program", extension))
 
-	// Redirect stdin, stdout, and stderr
+	// Redirect stdout and stderr
 	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout // Capture standard output
-	cmd.Stderr = &stderr // Capture errors
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
 	// Redirect standard input to simulate user data
 	stdinPipe, err := cmd.StdinPipe()
@@ -39,12 +40,29 @@ func main() {
 	}
 
 	// Write the simulated inputs to the program's standard input
-	stdinPipe.Write([]byte(inputString))
-	stdinPipe.Close()
+	go func() {
+		defer stdinPipe.Close()
+		stdinPipe.Write([]byte(inputString))
+	}()
 
-	// Wait for the command to finish
-	if err := cmd.Wait(); err != nil {
-		log.Fatalf("Error during execution: %s", err)
+	// Set a timeout for the command
+	timeout := 5 * time.Second
+	done := make(chan error)
+
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+	case err := <-done:
+		if err != nil {
+			log.Fatalf("Error during execution: %s", err)
+		}
+	case <-time.After(timeout):
+		if err := cmd.Process.Kill(); err != nil {
+			log.Fatalf("Failed to kill process: %s", err)
+		}
+		log.Fatalf("Error: Execution time exceeded the allowed limit of %v seconds.", timeout.Seconds())
 	}
 
 	// Print the program's standard output
