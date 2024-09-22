@@ -18,7 +18,7 @@ $inputs = ["Hector", 23, 171.32, "H", "I am a guy", 80, "+52 33 0000 1111"];
 $extension = "cpp";
 
 $input_string = implode("\n", $inputs);
-$command = __DIR__ . "/src/$extension/run_time_error_test";
+$command = __DIR__ . "/src/$extension/program";
 
 $descriptorspec = array(
     0 => array("pipe", "r"),  // stdin
