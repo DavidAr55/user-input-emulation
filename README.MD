@@ -15,7 +15,7 @@ Here’s an example of how `app.php` works, simulating user input for a Python p
 ```php
 <?php
 $inputs = ["Hector", 23, 171.32, "H", "I am a guy", 80, "+52 33 0000 1111"];
-$extension = "cpp";
+$extension = "py";
 
 $input_string = implode("\n", $inputs);
 $command = __DIR__ . "/src/$extension/program";
